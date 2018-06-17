@@ -5,7 +5,7 @@
 Install the latest version with
 
 ```bash
-$ composer require tonychen/task
+$ composer require tonychen/php-task
 ```
 
 ## Basic Usage
