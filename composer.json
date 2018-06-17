@@ -20,14 +20,5 @@
     "psr-4": {
       "Tony\\Task\\": "src/"
     }
-  },
-  "repositories": [
-    {
-      "packagist": false
-    },
-    {
-      "type": "composer",
-      "url": "https://packagist.phpcomposer.com"
-    }
-  ]
+  }
 }
