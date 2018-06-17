@@ -1,0 +1,31 @@
+{
+  "name": "tony/task",
+  "description": "task",
+  "authors": [
+    {
+      "name": "Tony Chen",
+      "email": "chendan316@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.1",
+    "dragonmantank/cron-expression": "^2.0"
+  },
+  "require-dev": {
+    "codeception/codeception": "2.2.10"
+  },
+  "autoload": {
+    "psr-4": {
+      "Tony\\Task\\": "src/"
+    }
+  },
+  "repositories": [
+    {
+      "packagist": false
+    },
+    {
+      "type": "composer",
+      "url": "https://packagist.phpcomposer.com"
+    }
+  ]
+}
