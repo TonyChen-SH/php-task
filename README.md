@@ -1,7 +1,15 @@
-### 项目结构图
+## Structure
 ![uml](media/uml.png)
 
-### 使用例子
+## Installation
+
+Install the latest version with
+
+```bash
+$ composer require tonychen/task
+```
+
+## Basic Usage
 ```php
 <?php
 
@@ -53,7 +61,7 @@ $runner->setSchedulers($schedules);
 $runner->run();
 ```
 
-### 文件日志结果(/tmp/php-task.log)
+## 文件日志结果(/tmp/php-task.log)
 ```php
 2018-06-17 15:06:05	*/1 * * * *
 2018-06-17 15:07:00	*/1 * * * *
@@ -81,10 +89,10 @@ $runner->run();
 2018-06-17 15:32:00	*/1 * * * *
 ```
 
-### 特性
+## 特性
 - 自动识别时区,不同时区的服务器再也不用手动修改时区
 
-### 表达式说明
+## 表达式说明
 ```php
 *    *    *    *    *
 -    -    -    -    -
@@ -98,5 +106,5 @@ $runner->run();
 ```
 
 #### 参考文章
-https://segmentfault.com/a/1190000005979154
-http://hejunhao.me/archives/470
+- https://segmentfault.com/a/1190000005979154
+- http://hejunhao.me/archives/470
