@@ -10,6 +10,9 @@ declare(strict_types=1);
 namespace Tony\Task\Job;
 
 // 带优先级的任务类
+use SplSubject;
+use Tony\Task\Scheduler;
+
 abstract class Job implements \SplObserver
 {
     // 优先级属性
@@ -24,4 +27,20 @@ abstract class Job implements \SplObserver
     {
         return $this->priority;
     }
+
+    /**
+     * @param $subject
+     * @throws \RuntimeException
+     */
+    public function update(SplSubject $subject): void
+    {
+        if (!$subject instanceof Scheduler)
+        {
+            throw new \RuntimeException('must instance of Scheduler');
+        }
+
+        $this->execute($subject);
+    }
+
+    abstract public function execute(Scheduler $subject): void;
 }
