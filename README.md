@@ -21,7 +21,7 @@ use Tony\Task\Struct\ProcessConfig;
 
 class Demo extends Job
 {
-    public function update(SplSubject $subject): void
+    public function execute(Scheduler $subject): void
     {
         /**@var Scheduler $subject */
         $expression = $subject->getTimer()->getExpression();
