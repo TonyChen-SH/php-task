@@ -39,19 +39,27 @@ $schedule = new Scheduler();
 $schedule->getTimer()->everyMinute();
 $schedule->attach(new Demo());
 
+// 5分钟执行一次
 $schedule5 = new Scheduler();
 $schedule5->getTimer()->everyFiveMinutes();
 $schedule5->attach(new Demo());
 
+// 30分钟执行一次
 $schedule30 = new Scheduler();
 $schedule30->getTimer()->everyThirtyMinutes();
 $schedule30->attach(new Demo());
 
+// 自定义事件表达式
+// 2个小时执行一次
+$schedule2Hours = new Scheduler();
+$schedule2Hours->getTimer()->setExpression("* */2 * * *");
+$schedule2Hours->attach(new Demo());
 
 $schedules = new SplObjectStorage();
 $schedules->attach($schedule);
 $schedules->attach($schedule5);
 $schedules->attach($schedule30);
+$schedules->attach($schedule2Hours);
 
 $runner = new Runner();
 $runner->setProcessConfig($processConfig);
