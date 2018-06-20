@@ -113,6 +113,10 @@ $runner->run();
 +------------------------- min (0 - 59)
 ```
 
+- [ ] 异常信息的日志记录
+- [ ] 进程挂了,记录异常信息
+- [x] Earth (Orbit/Moon)
+
 #### 参考文章
 - https://segmentfault.com/a/1190000005979154
 - http://hejunhao.me/archives/470

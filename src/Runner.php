@@ -103,6 +103,9 @@ class Runner extends Daemon
                             // @TODO 任务长时间阻塞..会造成长时间资源阻塞么????
                             $schedule->notify();
                             $schedule->getTimer()->setExecTime(new \DateTime('now'));
+                            // 执行一次垃圾回收
+                            //gc_collect_cycles();
+                            //xdebug_start_gcstats();
                         }
                     }
                 }
