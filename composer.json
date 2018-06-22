@@ -9,8 +9,6 @@
   ],
   "require": {
     "php": ">=7.1",
-    "ext-pcntl":"*",
-    "ext-posix":"*",
     "dragonmantank/cron-expression": "^2.0"
   },
   "require-dev": {
