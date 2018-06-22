@@ -7,6 +7,10 @@ Install the latest version with
 ```bash
 $ composer require tonychen/php-task
 ```
+windows下忽略依赖安装
+```bash
+-composer require tonychen/php-task -ignore-platform-reqs
+```
 
 ## Basic Usage
 ```php
