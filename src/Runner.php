@@ -114,7 +114,9 @@ class Runner extends Daemon
             }
         } catch (\Exception $ex)
         {
-            Console::output('%r[FAILED]%n');
+            Console::output('%n');
+            Console::output($ex->getMessage());
+            Console::output($ex->getTraceAsString());
         }
     }
 
@@ -134,7 +136,9 @@ class Runner extends Daemon
             }
         } catch (\Exception $ex)
         {
-            Console::output('%r[FAILED]%n');
+            Console::output('%n');
+            Console::output($ex->getMessage());
+            Console::output($ex->getTraceAsString());
         }
     }
 
@@ -158,7 +162,9 @@ class Runner extends Daemon
             Console::output('%g[Daemon is running]%n');
         } catch (\Exception $ex)
         {
-            Console::output('%r[FAILED]%n');
+            Console::output('%n');
+            Console::output($ex->getMessage());
+            Console::output($ex->getTraceAsString());
         }
     }
 }
