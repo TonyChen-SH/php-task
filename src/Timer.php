@@ -148,6 +148,13 @@ class Timer
             return $curTimezone;
         }
 
+        // windows系统执行不了date命令
+        // 默认给个上海时区
+        if (0 === stripos(PHP_OS, 'WIN'))
+        {
+            return 'Asia/Shanghai';
+        }
+
         $utcDateTime      = new \DateTime('now');
         $curLinuxDateTime = new \DateTime(shell_exec('date "+%Y-%m-%d %H:%M:%S"'));
 
