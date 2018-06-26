@@ -9,7 +9,7 @@ $ composer require tonychen/php-task
 ```
 windows下忽略依赖安装
 ```bash
--composer require tonychen/php-task --ignore-platform-reqs
+$ composer require tonychen/php-task --ignore-platform-reqs
 ```
 
 ## Basic Usage
