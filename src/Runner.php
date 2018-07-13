@@ -115,7 +115,7 @@ class Runner extends Daemon
         } catch (\Exception $ex)
         {
             Console::output('%n');
-            Console::output($ex->getMessage());
+            Console::error($ex->getMessage());
             Console::output($ex->getTraceAsString());
         }
     }
