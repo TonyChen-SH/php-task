@@ -84,6 +84,7 @@ class Daemon
         {
             throw new \RuntimeException('failed to open STDERR ' . $options['stderr']);
         }
+
         pcntl_signal(SIGTSTP, SIG_IGN);
         pcntl_signal(SIGTTOU, SIG_IGN);
         pcntl_signal(SIGTTIN, SIG_IGN);
