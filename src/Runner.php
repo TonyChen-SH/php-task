@@ -22,11 +22,13 @@ class Runner extends Daemon
     // 执行一次所有任务
     public function once(): void
     {
+        $this->enableMemoryProfiler();
         foreach ($this->schedulers as $scheduler)
         {
             /** @var Scheduler $scheduler */
             $scheduler->notify();
         }
+        $this->memoryProfilerDump();
     }
 
     public function getProcessConfig(): ProcessConfig
@@ -89,6 +91,8 @@ class Runner extends Daemon
             {
                 $schedules = $this->schedulers;
                 Daemon::work(['pid' => $this->processConfig->pidFile, 'stdout' => $this->processConfig->stdOut, 'stderr' => $this->processConfig->stdErr], function ($stdin, $stdout, $sterr) use ($schedules) {
+                    $this->enableMemoryProfiler();
+
                     while (true)
                     {
                         // do whatever it is daemons do
@@ -108,6 +112,8 @@ class Runner extends Daemon
                             //xdebug_start_gcstats();
                         }
                     }
+
+                    $this->memoryProfilerDump();
                 }
                 );
                 Console::output('%g[OK]%n');
@@ -120,8 +126,7 @@ class Runner extends Daemon
         }
     }
 
-    protected
-    function stop(): void
+    protected function stop(): void
     {
         Console::stdout('Stopping... ');
         try
@@ -142,15 +147,13 @@ class Runner extends Daemon
         }
     }
 
-    protected
-    function restart(): void
+    protected function restart(): void
     {
         $this->stop();
         $this->start();
     }
 
-    protected
-    function status(): void
+    protected function status(): void
     {
         try
         {
@@ -165,6 +168,35 @@ class Runner extends Daemon
             Console::output('%n');
             Console::output($ex->getMessage());
             Console::output($ex->getTraceAsString());
+        }
+    }
+
+    // 检测并开启内存分析
+    protected function enableMemoryProfiler(): void
+    {
+        // 不开启分析
+        if ($this->processConfig->enableMemoryProfiler !== true)
+        {
+            return;
+        }
+
+        // 没有加载分析模块
+        if ($this->processConfig->enableMemoryProfiler === true && !\extension_loaded('memprof'))
+        {
+            throw  new \RuntimeException("memprof extension not load. can't enable memory profiler");
+        }
+
+        // 开始分析
+        memprof_enable();
+
+    }
+
+    // 输入分析数据
+    protected function memoryProfilerDump()
+    {
+        if ($this->processConfig->enableMemoryProfiler === true && extension_loaded('memprof') === true)
+        {
+            memprof_dump_callgrind(fopen($this->processConfig->memoryProfilerDumpFile, 'wb'));
         }
     }
 }

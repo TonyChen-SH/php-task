@@ -116,8 +116,19 @@ $runner->run();
 |    +-------------------- hour (0 - 23)
 +------------------------- min (0 - 59)
 ```
+## 内存使用分析
+> 使用[php-memory-profiler](https://github.com/arnaud-lb/php-memory-profiler)进行使用内存分析
+```bash
+$ git clone https://github.com/arnaud-lb/php-memory-profiler
+$ cd php-memory-profiler&&phpize&&./configure&&make&&make install
+```
+加载扩展
+```bash
+php -dextension=memprof.so script.php
+```
 
-- [✓] 异常信息的日志记录
+
+- [x] 异常信息的日志记录
 - [ ] 集成内存分析工具，用于定于内存泄露问题: https://github.com/arnaud-lb/php-memory-profiler
 - [x] 集成
 
