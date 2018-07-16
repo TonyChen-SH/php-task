@@ -13,4 +13,8 @@ class ProcessConfig
 
     public $enableMemoryProfile = false; // 开启/关闭内存分析
     public $memoryProfileFile   = '';    // 内存分析数据存储文件
+
+    public $logPath;          // 异常日志记录目录
+    public $logFileName;      // 异常日志记录文件
+
 }
