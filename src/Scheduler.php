@@ -1,11 +1,5 @@
 <?php
 declare(strict_types=1);
-/**
- * Created by PhpStorm.
- * User: chendan
- * Date: 2018/6/16
- * Time: 16:08
- */
 
 namespace Tony\Task;
 

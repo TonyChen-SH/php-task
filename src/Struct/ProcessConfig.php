@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: chendan
- * Date: 2018/6/16
- * Time: 11:39
- */
+declare(strict_types=1);
 
 namespace Tony\Task\Struct;
 
@@ -15,4 +10,7 @@ class ProcessConfig
     public $stdIn;
     public $stdOut;
     public $stdErr;
+
+    public $enableMemoryProfile = false; // 开启/关闭内存分析
+    public $memoryProfileFile   = '';    // 内存分析数据存储文件
 }

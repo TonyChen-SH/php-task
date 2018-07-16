@@ -1,11 +1,6 @@
 <?php
 declare(strict_types=1);
-/**
- * Created by PhpStorm.
- * User: chendan
- * Date: 2018/6/16
- * Time: 21:10
- */
+
 include 'vendor/autoload.php';
 
 use Tony\Task\Job\Job;
