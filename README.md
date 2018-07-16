@@ -9,7 +9,7 @@ $ composer require tonychen/php-task
 ```
 windows下忽略依赖安装
 ```bash
--composer require tonychen/php-task --ignore-platform-reqs
+$ composer require tonychen/php-task --ignore-platform-reqs
 ```
 
 ## Basic Usage
@@ -117,9 +117,16 @@ $runner->run();
 +------------------------- min (0 - 59)
 ```
 
-- [ ] 异常信息的日志记录
+- [✓] 异常信息的日志记录
 - [ ] 进程挂了,记录异常信息
-- [x] Earth (Orbit/Moon)
+- [ ] 集成内存分析工具，用于定于内存泄露问题: https://github.com/arnaud-lb/php-memory-profiler
+- [x] 集成
+
+注册多一个set_exception_handle的问题，能不能都被调用的问题
+异常捕获和标准错误是不是有冲突? 标准错误这样还有用么？？是不是要取消掉??标准输入是不是也该取消掉？在ProcessConfig里面取消掉。。如果暂时还没有想通怎么用好，那就先取消掉
+  后面用用好的时候，再加入，以免造成使用上的困惑
+
+
 
 #### 参考文章
 - https://segmentfault.com/a/1190000005979154
