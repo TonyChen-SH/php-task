@@ -5,6 +5,7 @@ namespace Tony\Task;
 
 use SplObjectStorage;
 use Tony\Task\Struct\ProcessConfig;
+use Tony\Task\Utils\ThrowableCatch;
 
 class Runner extends Daemon
 {
@@ -50,11 +51,13 @@ class Runner extends Daemon
             return;
         }
 
-        if ($argc !== 2)
+        if ($argc < 2)
         {
             Console::output("usage: {$argv[0]} start|stop|restart|status");
             return;
         }
+        // 异常记录
+        ThrowableCatch::getInstance()->registerExceptionHandler($this->processConfig);
 
         switch ($argv[1])
         {
@@ -87,42 +90,42 @@ class Runner extends Daemon
             if (Daemon::isRunning($this->processConfig->pidFile))
             {
                 Console::output('%y[Already Running]%n');
-            } else
-            {
-                $schedules = $this->schedulers;
-                Daemon::work(['pid' => $this->processConfig->pidFile, 'stdout' => $this->processConfig->stdOut, 'stderr' => $this->processConfig->stdErr], function ($stdin, $stdout, $sterr) use ($schedules) {
-                    $this->enableMemoryProfiler();
-
-                    while (true)
-                    {
-                        // do whatever it is daemons do
-                        sleep(1); // sleep is good for you
-
-                        // 循环处理每个定时器
-                        foreach ($schedules as $schedule)
-                        {
-                            /** @var Scheduler $schedule */
-                            if (!$schedule->getTimer()->isDue()) continue;
-
-                            // @TODO 任务长时间阻塞..会造成长时间资源阻塞么????
-                            $schedule->notify();
-                            $schedule->getTimer()->setExecTime(new \DateTime('now'));
-                            // 执行一次垃圾回收
-                            //gc_collect_cycles();
-                            //xdebug_start_gcstats();
-                        }
-                    }
-
-                    $this->memoryProfilerDump();
-                }
-                );
-                Console::output('%g[OK]%n');
+                return;
             }
+
+            $schedules = $this->schedulers;
+            Daemon::work(['pid' => $this->processConfig->pidFile, 'stdout' => $this->processConfig->stdOut, 'stderr' => $this->processConfig->stdErr], function ($stdin, $stdout, $sterr) use ($schedules) {
+                $this->enableMemoryProfiler();
+                while (true)
+                {
+                    // do whatever it is daemons do
+                    sleep(1); // sleep is good for you
+
+                    // 循环处理每个定时器
+                    foreach ($schedules as $schedule)
+                    {
+                        /** @var Scheduler $schedule */
+                        if (!$schedule->getTimer()->isDue()) continue;
+
+                        // @TODO 任务长时间阻塞..会造成长时间资源阻塞么????
+                        $schedule->notify();
+                        $schedule->getTimer()->setExecTime(new \DateTime('now'));
+                        // 执行一次垃圾回收
+                        //gc_collect_cycles();
+                        //xdebug_start_gcstats();
+                    }
+                }
+
+                $this->memoryProfilerDump();
+            }
+            );
+            Console::output('%g[OK]%n');
         } catch (\Exception $ex)
         {
             Console::output('%n');
+
             Console::error($ex->getMessage());
-            Console::output($ex->getTraceAsString());
+            throw  $ex;
         }
     }
 
@@ -181,7 +184,7 @@ class Runner extends Daemon
         }
 
         // 没有加载分析模块
-        if ($this->processConfig->enableMemoryProfiler === true && !\extension_loaded('memprof'))
+        if (\extension_loaded('memprof') !== true)
         {
             throw  new \RuntimeException("memprof extension not load. can't enable memory profiler");
         }

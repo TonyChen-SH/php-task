@@ -127,7 +127,6 @@ $ cd php-memory-profiler&&phpize&&./configure&&make&&make install
 php -dextension=memprof.so script.php
 ```
 
-
 - [x] 异常信息的日志记录
 - [ ] 集成内存分析工具，用于定于内存泄露问题: https://github.com/arnaud-lb/php-memory-profiler
 - [x] 集成
