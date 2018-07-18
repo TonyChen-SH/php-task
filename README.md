@@ -117,18 +117,18 @@ $runner->run();
 +------------------------- min (0 - 59)
 ```
 ## 内存使用分析
-> 使用[php-memory-profiler](https://github.com/arnaud-lb/php-memory-profiler)进行使用内存分析
+> 使用[xdebug-profiler(2.6)](https://xdebug.org/docs/profiler)进行使用内存分析
 ```bash
-$ git clone https://github.com/arnaud-lb/php-memory-profiler
-$ cd php-memory-profiler&&phpize&&./configure&&make&&make install
+$ pecl install xdebug
 ```
 加载扩展
 ```bash
-php -dextension=memprof.so script.php
+php -d xdebug.profiler_enable=On -d xdebug.profiler_output_dir=. example.php
 ```
 
 - [x] 异常信息的日志记录
-- [ ] 集成内存分析工具，用于定于内存泄露问题: https://github.com/arnaud-lb/php-memory-profiler
+- [ ] 集成内存分析工具，用于定于内存泄露问题: xdebug
+- [ ] xdebug收集php gc的情况
 - [x] 集成
 
 注册多一个set_exception_handle的问题，能不能都被调用的问题

@@ -5,6 +5,7 @@ namespace Tony\Task;
 
 use SplObjectStorage;
 use Tony\Task\Struct\ProcessConfig;
+use Tony\Task\Utils\MemoryProfiler;
 use Tony\Task\Utils\ThrowableCatch;
 
 class Runner extends Daemon
@@ -29,7 +30,6 @@ class Runner extends Daemon
             /** @var Scheduler $scheduler */
             $scheduler->notify();
         }
-        $this->memoryProfilerDump();
     }
 
     public function getProcessConfig(): ProcessConfig
@@ -56,6 +56,8 @@ class Runner extends Daemon
             Console::output("usage: {$argv[0]} start|stop|restart|status");
             return;
         }
+        // 开启内存分析
+        $this->enableMemoryProfiler();
         // 异常记录
         ThrowableCatch::getInstance()->registerExceptionHandler($this->processConfig);
 
@@ -95,7 +97,6 @@ class Runner extends Daemon
 
             $schedules = $this->schedulers;
             Daemon::work(['pid' => $this->processConfig->pidFile, 'stdout' => $this->processConfig->stdOut, 'stderr' => $this->processConfig->stdErr], function ($stdin, $stdout, $sterr) use ($schedules) {
-                $this->enableMemoryProfiler();
                 while (true)
                 {
                     // do whatever it is daemons do
@@ -115,8 +116,6 @@ class Runner extends Daemon
                         //xdebug_start_gcstats();
                     }
                 }
-
-                $this->memoryProfilerDump();
             }
             );
             Console::output('%g[OK]%n');
@@ -177,6 +176,9 @@ class Runner extends Daemon
     // 检测并开启内存分析
     protected function enableMemoryProfiler(): void
     {
+        // 由于ini_set设置xdebug配置参数无效，所以，暂时这里不做任何处理
+        return;
+
         // 不开启分析
         if ($this->processConfig->enableMemoryProfiler !== true)
         {
@@ -184,22 +186,12 @@ class Runner extends Daemon
         }
 
         // 没有加载分析模块
-        if (\extension_loaded('memprof') !== true)
+        if (\extension_loaded('xdebug') !== true)
         {
-            throw  new \RuntimeException("memprof extension not load. can't enable memory profiler");
+            throw  new \RuntimeException("xdebug extension not load. can't enable memory profiler");
         }
 
         // 开始分析
-        memprof_enable();
-
-    }
-
-    // 输入分析数据
-    protected function memoryProfilerDump()
-    {
-        if ($this->processConfig->enableMemoryProfiler === true && extension_loaded('memprof') === true)
-        {
-            memprof_dump_callgrind(fopen($this->processConfig->memoryProfilerDumpFile, 'wb'));
-        }
+        MemoryProfiler::getInstance()->enable();
     }
 }
