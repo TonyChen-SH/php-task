@@ -1,9 +1,5 @@
 <?php
-
-/**
- * User: Tony Chen
- * Contact me: QQ329037122
- */
+declare(strict_types=1);
 
 namespace Tony\Task\Utils;
 
