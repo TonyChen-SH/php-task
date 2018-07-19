@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+// declare(strict_types=1);
 
 namespace Tony\Task;
 
@@ -244,14 +244,15 @@ class Console
     {
         if ($raw)
         {
-            return fwrite(STDOUT, $text);
-        } else if (extension_loaded('posix') && posix_isatty(STDOUT))
-        {
-            return fwrite(STDOUT, static::colorize($text));
-        } else
-        {
-            return fwrite(STDOUT, static::decolorize($text));
+            return fwrite(fopen('php://stdout', 'wb'), $text);
         }
+
+        if (\extension_loaded('posix') && posix_isatty(fopen('php://stdout', 'wb')))
+        {
+            return fwrite(fopen('php://stdout', 'wb'), static::colorize($text));
+        }
+
+        return fwrite(fopen('php://stdout', 'wb'), static::decolorize($text));
     }
 
     /**
@@ -279,14 +280,15 @@ class Console
     {
         if ($raw)
         {
-            return fwrite(STDERR, $text);
-        } else if (extension_loaded('posix') && posix_isatty(STDERR))
-        {
-            return fwrite(STDERR, static::colorize($text));
-        } else
-        {
-            return fwrite(STDERR, static::decolorize($text));
+            return fwrite(fopen('php://stderr', 'wb'), $text);
         }
+
+        if (\extension_loaded('posix') && posix_isatty(fopen('php://stderr', 'wb')))
+        {
+            return fwrite(fopen('php://stderr', 'wb'), static::colorize($text));
+        }
+
+        return fwrite(fopen('php://stderr', 'wb'), static::decolorize($text));
     }
 
     /**
