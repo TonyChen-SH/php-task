@@ -24,8 +24,9 @@ $processConfig->stdErr  = '/dev/null';
 $processConfig->stdOut  = __DIR__ . '/log_err.txt';
 $processConfig->stdIn   = '/dev/null';
 
-$processConfig->logPath     = __DIR__;
-$processConfig->logFileName = 'log_err.txt';
+$processConfig->logPath              = __DIR__;
+$processConfig->logFileName          = 'log_err.txt';
+$processConfig->enableMemoryProfiler = true;
 
 $schedule = new Scheduler();
 $schedule->getTimer()->everyMinute();
@@ -45,8 +46,7 @@ $schedules->attach($schedule);
 $schedules->attach($schedule5);
 $schedules->attach($schedule30);
 
-$runner = new Runner();
-$runner->setProcessConfig($processConfig);
+$runner = new Runner($processConfig);
 $runner->setSchedulers($schedules);
 
 $runner->run();
