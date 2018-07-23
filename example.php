@@ -19,10 +19,13 @@ class Demo extends Job
 }
 
 $processConfig          = new ProcessConfig();
-$processConfig->pidFile = '/tmp/php-task.pid';
+$processConfig->pidFile = __DIR__ . '/php-task.pid';
 $processConfig->stdErr  = '/dev/null';
-$processConfig->stdOut  = '/dev/null';
+$processConfig->stdOut  = __DIR__ . '/log_err.txt';
 $processConfig->stdIn   = '/dev/null';
+
+$processConfig->logPath     = __DIR__;
+$processConfig->logFileName = 'log_err.txt';
 
 $schedule = new Scheduler();
 $schedule->getTimer()->everyMinute();

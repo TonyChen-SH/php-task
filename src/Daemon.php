@@ -56,7 +56,7 @@ class Daemon
             default:
                 fseek($lock, 0);
                 ftruncate($lock, 0);
-                fwrite($lock, $pid);
+                fwrite($lock, (string)$pid);
                 fflush($lock);
                 return;
         }
@@ -64,6 +64,9 @@ class Daemon
         {
             throw new \RuntimeException('failed to setsid');
         }
+
+        // 先关闭再打开，就可以做到定向的作用
+        // https://hk.saowen.com/a/c718d756ad077be09757b73845045fca67afa5d5e02c58b5605661baebcc2ad8
         fclose(STDIN);
         fclose(STDOUT);
         fclose(STDERR);
@@ -151,7 +154,7 @@ class Daemon
         }
         $pid = fgets($lock);
 
-        if (posix_kill($pid, SIGTERM))
+        if (posix_kill((int)$pid, SIGTERM))
         {
             if ($delete) unlink($file);
             return true;
