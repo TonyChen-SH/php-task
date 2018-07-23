@@ -3,12 +3,10 @@ declare(strict_types=1);
 
 namespace Tony\Task;
 
-use Flintstone\Flintstone;
 use SplObjectStorage;
 use Tony\Task\Struct\ProcessConfig;
 use Tony\Task\Utils\MemoryProfiler;
 use Tony\Task\Utils\ThrowableCatch;
-use Tony\Task\Utils\Tool;
 
 class Runner extends Daemon
 {
@@ -18,30 +16,19 @@ class Runner extends Daemon
     /**@var ProcessConfig $processConfig 进程相关配置信息 */
     private $processConfig;
 
-    public function setSchedulers(\SplObjectStorage $schedulers): void
+    public function __construct(ProcessConfig $processConfig)
     {
-        $this->schedulers = $schedulers;
+        $this->setProcessConfig($processConfig);
     }
 
     // 执行一次所有任务
     public function once(): void
     {
-        $this->enableMemoryProfiler();
         foreach ($this->schedulers as $scheduler)
         {
             /** @var Scheduler $scheduler */
             $scheduler->notify();
         }
-    }
-
-    public function getProcessConfig(): ProcessConfig
-    {
-        return $this->processConfig;
-    }
-
-    public function setProcessConfig(ProcessConfig $processConfig): void
-    {
-        $this->processConfig = $processConfig;
     }
 
     public function run(): void
@@ -58,8 +45,6 @@ class Runner extends Daemon
             Console::output("usage: {$argv[0]} start|stop|restart|status");
             return;
         }
-        // 开启内存分析
-        $this->enableMemoryProfiler();
         // 异常记录
         ThrowableCatch::getInstance()->registerExceptionHandler($this->processConfig);
 
@@ -81,7 +66,7 @@ class Runner extends Daemon
                 $this->once();
                 break;
             case 'profiler':
-                $this->profiler();
+                MemoryProfiler::getInstance()->aggregateProfiler();
                 break;
             default:
                 Console::output('Unknown action.');
@@ -100,14 +85,15 @@ class Runner extends Daemon
                 return;
             }
 
-            $schedules    = $this->schedulers;
-            $settingStore = $this->getFlintStone('php-task');
-            $settingStore->set('start_time', date('Y-m-d H:i:s'));
-            Daemon::work(['pid' => $this->processConfig->pidFile, 'stdout' => $this->processConfig->stdOut, 'stderr' => $this->processConfig->stdErr], function ($stdin, $stdout, $sterr) use ($schedules, $settingStore) {
+            $schedules = $this->schedulers;
+            MemoryProfiler::getInstance()->setStartTime();
+            Daemon::work(['pid' => $this->processConfig->pidFile, 'stdout' => $this->processConfig->stdOut, 'stderr' => $this->processConfig->stdErr], function ($stdin, $stdout, $sterr) use ($schedules) {
                 while (true)
                 {
                     // do whatever it is daemons do
                     sleep(1); // sleep is good for you
+
+                    MemoryProfiler::getInstance()->setRealTimeProfiler();
 
                     // 循环处理每个定时器
                     foreach ($schedules as $schedule)
@@ -115,19 +101,13 @@ class Runner extends Daemon
                         /** @var Scheduler $schedule */
                         if (!$schedule->getTimer()->isDue()) continue;
 
-                        $info['execute_time']        = time();
-                        $info['before_memory_usage'] = memory_get_usage();
+                        $this->beforeExecuteJob();
 
                         // @TODO 任务长时间阻塞..会造成长时间资源阻塞么????
                         $schedule->notify();
                         $schedule->getTimer()->setExecTime(new \DateTime('now'));
 
-                        $info['after_memory_usage'] = memory_get_usage();
-                        $info['max_memory_usage']   = memory_get_peak_usage();
-
-                        $key = 'memory_profiler' . $info['execute_time'];
-                        $settingStore->set($key, $info);
-                        $settingStore->set('memory_profiler', $info);
+                        $this->afterExecuteJob();
                         // 执行一次垃圾回收
                         //gc_collect_cycles();
                         //xdebug_start_gcstats();
@@ -157,7 +137,7 @@ class Runner extends Daemon
             }
 
             Daemon::kill($this->processConfig->pidFile, true);
-            $this->getFlintStone('php-task')->flush();
+            MemoryProfiler::getInstance()->clear();
             Console::output('%g[OK]%n');
         } catch (\Exception $ex)
         {
@@ -184,7 +164,7 @@ class Runner extends Daemon
                 return;
             }
 
-            $this->showProfiler($pidFile);
+            MemoryProfiler::getInstance()->showRealTimeProfiler();
         } catch (\Exception $ex)
         {
             Console::output('%n');
@@ -193,58 +173,43 @@ class Runner extends Daemon
         }
     }
 
-    // 检测并开启内存分析
-    protected function enableMemoryProfiler(): void
+    public function getProcessConfig(): ProcessConfig
     {
-        // 由于ini_set设置xdebug配置参数无效，所以，暂时这里不做任何处理
-        return;
-
-        // 不开启分析
-        if ($this->processConfig->enableMemoryProfiler !== true)
-        {
-            return;
-        }
-
-        // 没有加载分析模块
-        if (\extension_loaded('xdebug') !== true)
-        {
-            throw  new \RuntimeException("xdebug extension not load. can't enable memory profiler");
-        }
-
-        // 开始分析
-        MemoryProfiler::getInstance()->enable();
+        return $this->processConfig;
     }
 
-    public function getFlintStone($database): Flintstone
+    public function setProcessConfig(ProcessConfig $processConfig): void
     {
-        $options = ['dir' => $this->processConfig->logPath];
-        return new Flintstone($database, $options);
+        $this->processConfig = $processConfig;
+        MemoryProfiler::getInstance()->setProcessConfig($processConfig);
     }
 
-    /**
-     * @param $pidFile
-     */
-    protected function showProfiler($pidFile): void
+    public function setSchedulers(\SplObjectStorage $schedulers): void
     {
-        $pid = file_get_contents($pidFile);
-
-        $settingStore   = $this->getFlintStone('php-task');
-        $endTime        = new \DateTime('now');
-        $startTime      = new \DateTime($this->getFlintStone('php-task')->get('start_time'));
-        $uptime         = $endTime->diff($startTime)->format('%dd:%hh:%im:%ss');
-        $memoryProfiler = $settingStore->get('memory_profiler');
-        $memUsage       = Tool::getInstance()->sizeConvert($memoryProfiler['after_memory_usage']);
-        $memMax         = Tool::getInstance()->sizeConvert($memoryProfiler['max_memory_usage']);
-
-        Console::output('%P[Daemon is running]%n');
-        Console::output('%g================================================================%n');
-        Console::output("%g pid\t\tmemory\t\tmax memory\tuptime %n");
-        Console::output("%g {$pid}\t\t{$memUsage}\t\t{$memMax}\t\t{$uptime} %n");
-        Console::output('%g================================================================%n');
+        $this->schedulers = $schedulers;
     }
 
-    private function profiler(): void
+    private function beforeExecuteJob(): void
     {
-        // @todo 1.统计一个平均值 2.找出最大内存记录和最小内存记录
+        // $info['execute_time']        = time();
+        // $info['before_memory_usage'] = memory_get_usage();
+        // $info['after_memory_usage'] = memory_get_usage();
+        // $info['max_memory_usage']   = memory_get_peak_usage();
+        //
+        // $key = 'memory_profiler' . $info['execute_time'];
+        // $settingStore->set($key, $info);
+        // $settingStore->set('memory_profiler', $info);
+    }
+
+    private function afterExecuteJob(): void
+    {
+        // $info['execute_time']        = time();
+        // $info['before_memory_usage'] = memory_get_usage();
+        // $info['after_memory_usage'] = memory_get_usage();
+        // $info['max_memory_usage']   = memory_get_peak_usage();
+        //
+        // $key = 'memory_profiler' . $info['execute_time'];
+        // $settingStore->set($key, $info);
+        // $settingStore->set('memory_profiler', $info);
     }
 }
