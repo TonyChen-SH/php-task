@@ -9,10 +9,11 @@
   ],
   "require": {
     "php": ">=7.1",
-    "ext-pcntl":"*",
-    "ext-posix":"*",
+    "ext-pcntl": "*",
+    "ext-posix": "*",
     "dragonmantank/cron-expression": "^2.0",
-    "psr/log": "^1.0.0"
+    "psr/log": "^1.0.0",
+    "fire015/flintstone": "^2.0"
   },
   "require-dev": {
     "codeception/codeception": "2.2.10"
