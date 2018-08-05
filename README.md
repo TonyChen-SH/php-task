@@ -1,5 +1,5 @@
 ## Structure
-![uml](media/uml.png)
+![uml](media/uml.png#2)
 
 ## Installation
 Install the latest version with
