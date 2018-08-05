@@ -17,7 +17,6 @@ class MemoryProfiler
 
     use SingletonImpl;
 
-
     public function aggregateProfiler(): void
     {
         // @todo 1.统计一个平均值 2.找出最大内存记录和最小内存记录

@@ -72,6 +72,18 @@ $runner->setSchedulers($schedules);
 $runner->run();
 ```
 
+```bash
+# 启动进程任务
+php example.php start
+
+# 结束进程任务
+php example.php stop
+
+# 查看进程任务的在线时间、内存使用状态、进程id
+php example.php status
+```
+![进程状态](media/task-status.png)
+
 ## 文件日志结果(/tmp/php-task.log)
 ```php
 2018-06-17 15:06:05	*/1 * * * *
@@ -116,39 +128,12 @@ $runner->run();
 |    +-------------------- hour (0 - 23)
 +------------------------- min (0 - 59)
 ```
-## 内存使用分析
-> 使用[xdebug-profiler(2.6)](https://xdebug.org/docs/profiler)进行使用内存分析
-```bash
-$ pecl install xdebug
-```
-加载扩展
-```bash
-# 分析内存使用
-php -d xdebug.profiler_enable=On -d xdebug.profiler_output_dir=. example.php
-# 分析gc情况
-php -d xdebug.gc_stats_enable=On -d xdebug.gc_stats_output_dir=/tmp task.php start
-```
 
-- [x] 异常信息的日志记录
-- [ ] 集成内存分析工具，用于定于内存泄露问题: xdebug
-- [ ] xdebug收集php gc的情况
-- [x] 集成
-
-
-异常捕获和标准错误是不是有冲突? 标准错误这样还有用么？？是不是要取消掉??标准输入是不是也该取消掉？在ProcessConfig里面取消掉。。如果暂时还没有想通怎么用好，那就先取消掉
-  后面用用好的时候，再加入，以免造成使用上的困惑
-
-到底想要什么样的内存分析：
-1. 多一个请求，可以算平均. 分析单个不具有代表性
-2. 可以看gc的状态分析
-3. 分析哪个地方的内存消耗最多
-4. 内存增长监控...是否有内存泄露??
-
-  
-- 完整的项目案例
-- 测试用例
-- 内存探测的做稳定了，用一段时间，如果没有新增功能，发布一个0.x系列的正式版本
-- 再往后去，在功能上做一个1.0版本的规划，发布1.0版本
+### TODO LIST
+- [ ] 完整的项目案例
+- [ ] 测试用例
+- [ ] 内存探测的做稳定了，用一段时间，如果没有新增功能，发布一个0.x系列的正式版本
+- [ ] 再往后去，在功能上做一个1.0版本的规划，发布1.0版本
 
 #### 参考文章
 - https://segmentfault.com/a/1190000005979154
